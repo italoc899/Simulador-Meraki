@@ -1,0 +1,347 @@
+Conversation opened. 1 read message.
+
+Skip to content
+Using Gmail with screen readers
+plapla 
+Enable desktop notifications for Gmail.
+   OK  No thanks
+Plapla
+
+José ítalo Cândido <italoc899@gmail.com>
+Attachments
+Mon, Dec 22, 3:55 PM (2 days ago)
+to jsicinvestimentos@gmail.com
+
+ One attachment
+  •  Scanned by Gmail
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Simulador de Crédito</title>
+
+<style>
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  background: #0f172a;
+  color: #e5e7eb;
+  padding: 12px;
+}
+.container {
+  max-width: 520px;
+  background: #020617;
+  padding: 14px;
+  border-radius: 12px;
+  margin: auto;
+}
+h2 {
+  text-align: center;
+  color: #22c55e;
+  margin-bottom: 10px;
+}
+
+/* LINHAS */
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #020617;
+  border: 1px solid #334155;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-top: 6px;
+  font-size: 13px;
+}
+.label {
+  color: #94a3b8;
+}
+.value {
+  font-weight: bold;
+}
+.row button {
+  background: transparent;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+/* RESULTADO */
+pre {
+  background: #020617;
+  border: 1px solid #334155;
+  padding: 10px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  margin-top: 10px;
+  font-size: 14px;
+}
+.copy {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #22c55e;
+  color: #020617;
+  font-weight: bold;
+  cursor: pointer;
+}
+.ok {
+  text-align: center;
+  color: #22c55e;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+/* MODAL */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.modal {
+  background: #020617;
+  padding: 14px;
+  border-radius: 10px;
+  width: 260px;
+}
+.display {
+  border: 1px solid #334155;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 16px;
+  text-align: right;
+  font-weight: bold;
+}
+
+/* CALCULADORA */
+.calc {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 6px;
+}
+.calc button {
+  height: 30px;
+  background: #020617;
+  border: 1px solid #334155;
+  color: #e5e7eb;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.confirm {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  background: #22c55e;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* OPÇÕES PARCELAS */
+.options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.options button {
+  background: #020617;
+  border: 1px solid #334155;
+  color: #e5e7eb;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>Simulação de Crédito</h2>
+
+  <div class="row">
+    <span class="label">Crédito</span>
+    <span class="value" id="creditoView">0,00</span>
+    <button onclick="abrirModal('credito')">Ajustar</button>
+  </div>
+
+  <div class="row">
+    <span class="label">Entrada</span>
+    <span class="value" id="entradaView">0,00</span>
+    <button onclick="abrirModal('entrada')">Ajustar</button>
+  </div>
+
+  <div class="row">
+    <span class="label">Parcelas mín.</span>
+    <span class="value" id="minView">2x</span>
+    <button onclick="abrirModal('min')">Ajustar</button>
+  </div>
+
+  <div class="row">
+    <span class="label">Parcelas máx.</span>
+    <span class="value" id="maxView">150x</span>
+    <button onclick="abrirModal('max')">Ajustar</button>
+  </div>
+
+  <button class="copy" onclick="copiar()">Copiar simulação</button>
+  <pre id="resultado"></pre>
+  <div class="ok" id="msg"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="fecharModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div id="modalConteudo"></div>
+  </div>
+</div>
+
+<script>
+let credito = "";
+let entrada = "";
+let minParcelas = 2;
+let maxParcelas = 150;
+let alvo = "";
+let buffer = "";
+
+const parcelasFixas = [2,4,6,12,24,36,48,60,72,84,96,120,132,144,150];
+
+function formatar(v){
+  return Number(v || 0).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function abrirModal(tipo){
+  alvo = tipo;
+  modalConteudo.innerHTML = "";
+
+  if(tipo === "credito" || tipo === "entrada"){
+    buffer = tipo === "credito" ? credito : entrada;
+    modalConteudo.innerHTML = `
+      <div class="display">${formatar(buffer)}</div>
+      <div class="calc">
+        ${[1,2,3,4,5,6,7,8,9,0,"000"].map(n =>
+          `<button onclick="digitar('${n}')">${n}</button>`
+        ).join("")}
+        <button onclick="limpar()">C</button>
+      </div>
+      <button class="confirm" onclick="confirmar()">Confirmar</button>
+    `;
+  } else {
+    modalConteudo.innerHTML = `
+      <div class="options">
+        ${parcelasFixas.map(p =>
+          `<button onclick="setParcela(${p})">${p}x</button>`
+        ).join("")}
+      </div>
+    `;
+  }
+
+  modalBg.style.display = "flex";
+}
+
+function fecharModal(){
+  modalBg.style.display = "none";
+}
+
+function digitar(v){
+  buffer += v;
+  modalConteudo.querySelector(".display").innerText = formatar(buffer);
+}
+
+function limpar(){
+  buffer = "";
+  modalConteudo.querySelector(".display").innerText = "0,00";
+}
+
+function confirmar(){
+  if(alvo === "credito"){
+    credito = buffer;
+    creditoView.innerText = formatar(credito);
+  }
+  if(alvo === "entrada"){
+    entrada = buffer;
+    entradaView.innerText = formatar(entrada);
+  }
+  fecharModal();
+  atualizar();
+}
+
+function setParcela(p){
+  if(alvo === "min"){
+    minParcelas = p;
+    minView.innerText = p + "x";
+  }
+  if(alvo === "max"){
+    maxParcelas = p;
+    maxView.innerText = p + "x";
+  }
+  fecharModal();
+  atualizar();
+}
+
+function atualizar(){
+  const c = Number(credito || 0);
+  const e = Number(entrada || 0);
+  if(c <= 0){
+    resultado.innerText = "";
+    return;
+  }
+
+  const base = (c * 1.19) - e;
+
+  let texto = `SIMULAÇÃO ✅\n\nCrédito: ${formatar(c)}\nEntrada: ${formatar(e)}\n\n`;
+  let valido = false;
+
+  parcelasFixas.forEach(p => {
+    if(p < minParcelas || p > maxParcelas) return;
+    const valor = Math.round((base / p) * 100) / 100;
+    if(valor >= 300){
+      texto += `${p}x de ${formatar(valor)}\n`;
+      valido = true;
+    }
+  });
+
+  if(!valido){
+    texto += "Nenhuma parcela acima de 300,00.\n";
+  }
+
+  texto += "\nValores após a liberação";
+  resultado.innerText = texto;
+}
+
+function copiar(){
+  if(!resultado.innerText) return;
+
+  const t = document.createElement("textarea");
+  t.value = resultado.innerText;
+  t.style.position = "fixed";
+  t.style.opacity = "0";
+  document.body.appendChild(t);
+  t.focus();
+  t.select();
+  document.execCommand("copy");
+  document.body.removeChild(t);
+
+  msg.innerText = "Simulação copiada ✅";
+}
+</script>
+</body>
+</html>
+Simulador Meraki.html
+Displaying Simulador Meraki.html.
