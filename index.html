@@ -296,7 +296,7 @@ function atualizar(){
   parcelasFixas.forEach(p => {
     if(p < minParcelas || p > maxParcelas) return;
     const valor = Math.round((base / p) * 100) / 100;
-    if(valor >= 300){
+    if(valor >= 290){
       texto += `${p}x de ${formatar(valor)}\n`;
       valido = true;
     }
@@ -328,6 +328,7 @@ function copiar(){
 </script>
 </body>
 </html>
+
 
 
 
