@@ -1,338 +1,206 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meraki Invest - Sistema</title>
+    <style>
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #0f172a; color: #e5e7eb; padding: 12px; margin: 0; }
+        .container { max-width: 520px; background: #020617; padding: 14px; border-radius: 12px; margin: auto; border: 1px solid #1e293b; }
+        
+        /* MENU DE NAVEGAÇÃO */
+        .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; background: #0f172a; padding: 4px; border-radius: 10px; border: 1px solid #334155; }
+        .tab-btn { padding: 10px; border: none; border-radius: 8px; background: transparent; color: #94a3b8; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.3s; }
+        .tab-btn.active { background: #1e293b; color: #22c55e; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .tab-btn.active.zap-tab { color: #facc15; }
 
-<title>Meraki invest</title>
-<link rel="icon" type="image/png" href="icon (2).png">
+        h2 { text-align: center; color: #22c55e; margin-bottom: 10px; font-size: 1.2rem; }
+        h2.zap-title { color: #facc15; }
 
-<style>
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  background: #0f172a;
-  color: #e5e7eb;
-  padding: 12px;
-}
-.container {
-  max-width: 520px;
-  background: #020617;
-  padding: 14px;
-  border-radius: 12px;
-  margin: auto;
-}
-h2 {
-  text-align: center;
-  color: #22c55e;
-  margin-bottom: 10px;
-}
+        /* LINHAS E INPUTS */
+        .row { display: flex; justify-content: space-between; align-items: center; background: #020617; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; margin-top: 6px; font-size: 13px; }
+        .label { color: #94a3b8; }
+        .value { font-weight: bold; }
+        .row button { background: transparent; border: 1px solid #334155; color: #94a3b8; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+        
+        .input-zap { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 8px; color: white; font-size: 14px; outline: none; margin-top: 5px; box-sizing: border-box; }
+        .input-zap:focus { border-color: #facc15; }
 
-/* LINHAS */
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #020617;
-  border: 1px solid #334155;
-  padding: 8px 10px;
-  border-radius: 8px;
-  margin-top: 6px;
-  font-size: 13px;
-}
-.label {
-  color: #94a3b8;
-}
-.value {
-  font-weight: bold;
-}
-.row button {
-  background: transparent;
-  border: 1px solid #334155;
-  color: #94a3b8;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  cursor: pointer;
-}
+        /* BOTÕES */
+        .btn-green { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: none; background: #22c55e; color: #020617; font-weight: bold; cursor: pointer; }
+        .btn-yellow { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: none; background: #facc15; color: #020617; font-weight: bold; cursor: pointer; }
+        button:active { transform: scale(0.98); }
 
-/* RESULTADO */
-pre {
-  background: #020617;
-  border: 1px solid #334155;
-  padding: 10px;
-  border-radius: 8px;
-  white-space: pre-wrap;
-  margin-top: 10px;
-  font-size: 14px;
-}
-.copy {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #22c55e;
-  color: #020617;
-  font-weight: bold;
-  cursor: pointer;
-}
-.ok {
-  text-align: center;
-  color: #22c55e;
-  margin-top: 6px;
-  font-size: 13px;
-}
+        /* RESULTADO E HISTÓRICO */
+        pre { background: #020617; border: 1px solid #334155; padding: 10px; border-radius: 8px; white-space: pre-wrap; margin-top: 10px; font-size: 14px; min-height: 20px; }
+        .ok { text-align: center; color: #22c55e; margin-top: 6px; font-size: 13px; font-weight: bold; }
+        .log-item { background: #0f172a; border: 1px solid #1e293b; padding: 10px; border-radius: 8px; margin-top: 8px; font-size: 12px; border-left: 3px solid #facc15; }
 
-/* MODAL */
-.modal-bg {
-  position: fixed;
-  inset: 0;
-  background: rgba(2,6,23,0.75);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-.modal {
-  background: #020617;
-  padding: 14px;
-  border-radius: 10px;
-  width: 260px;
-}
-.display {
-  border: 1px solid #334155;
-  padding: 8px;
-  border-radius: 6px;
-  font-size: 16px;
-  text-align: right;
-  font-weight: bold;
-}
-
-/* CALCULADORA */
-.calc {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  margin-top: 6px;
-}
-.calc button {
-  height: 30px;
-  background: #020617;
-  border: 1px solid #334155;
-  color: #e5e7eb;
-  border-radius: 4px;
-  font-size: 11px;
-  cursor: pointer;
-}
-.confirm {
-  width: 100%;
-  margin-top: 6px;
-  padding: 8px;
-  background: #22c55e;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-/* OPÇÕES PARCELAS */
-.options {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-.options button {
-  background: #020617;
-  border: 1px solid #334155;
-  color: #e5e7eb;
-  padding: 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-}
-</style>
+        /* MODAL */
+        .modal-bg { position: fixed; inset: 0; background: rgba(2,6,23,0.85); display: none; align-items: center; justify-content: center; z-index: 999; }
+        .modal { background: #020617; padding: 14px; border-radius: 10px; width: 260px; border: 1px solid #334155; }
+        .display { border: 1px solid #334155; padding: 8px; border-radius: 6px; font-size: 16px; text-align: right; font-weight: bold; margin-bottom: 10px; }
+        .calc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .calc button { height: 35px; background: #0f172a; border: 1px solid #334155; color: #e5e7eb; border-radius: 4px; cursor: pointer; }
+        .confirm { width: 100%; margin-top: 10px; padding: 10px; background: #22c55e; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .options button { background: #0f172a; border: 1px solid #334155; color: #e5e7eb; padding: 8px; border-radius: 6px; cursor: pointer; }
+    </style>
 </head>
-
 <body>
+
 <div class="container">
-  <h2>Simulação de Crédito</h2>
+    <div class="tabs">
+        <button class="tab-btn active" id="tabSimulacao" onclick="trocarTab('simulacao')">Simulação</button>
+        <button class="tab-btn zap-tab" id="tabZap" onclick="trocarTab('zap')">Envio Zap</button>
+    </div>
 
-  <div class="row">
-    <span class="label">Crédito</span>
-    <span class="value" id="creditoView">0,00</span>
-    <button onclick="abrirModal('credito')">Ajustar</button>
-  </div>
+    <div id="secaoSimulacao">
+        <h2>Simulação de Crédito</h2>
+        <div class="row"><span class="label">Crédito</span><span class="value" id="creditoView">0,00</span><button onclick="abrirModal('credito')">Ajustar</button></div>
+        <div class="row"><span class="label">Entrada</span><span class="value" id="entradaView">0,00</span><button onclick="abrirModal('entrada')">Ajustar</button></div>
+        <div class="row"><span class="label">Parcelas mín.</span><span class="value" id="minView">2x</span><button onclick="abrirModal('min')">Ajustar</button></div>
+        <div class="row"><span class="label">Parcelas máx.</span><span class="value" id="maxView">150x</span><button onclick="abrirModal('max')">Ajustar</button></div>
+        <button class="btn-green" onclick="copiar()">Copiar simulação</button>
+        <pre id="resultado"></pre>
+        <div class="ok" id="msgSimulacao"></div>
+    </div>
 
-  <div class="row">
-    <span class="label">Entrada</span>
-    <span class="value" id="entradaView">0,00</span>
-    <button onclick="abrirModal('entrada')">Ajustar</button>
-  </div>
-
-  <div class="row">
-    <span class="label">Parcelas mín.</span>
-    <span class="value" id="minView">2x</span>
-    <button onclick="abrirModal('min')">Ajustar</button>
-  </div>
-
-  <div class="row">
-    <span class="label">Parcelas máx.</span>
-    <span class="value" id="maxView">150x</span>
-    <button onclick="abrirModal('max')">Ajustar</button>
-  </div>
-
-  <button class="copy" onclick="copiar()">Copiar simulação</button>
-  <pre id="resultado"></pre>
-  <div class="ok" id="msg"></div>
+    <div id="secaoZap" style="display: none;">
+        <h2 class="zap-title">Chamar no WhatsApp</h2>
+        <div style="margin-top: 10px;">
+            <label class="label" style="font-size: 11px;">NÚMERO DO CLIENTE</label>
+            <input type="tel" id="zapNumero" class="input-zap" placeholder="(00) 00000-0000" maxlength="15">
+        </div>
+        <button class="btn-yellow" onclick="enviarZap()">ABRIR WHATSAPP</button>
+        <div id="zapHistorico" style="margin-top: 20px;"></div>
+    </div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-bg" id="modalBg" onclick="fecharModal()">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div id="modalConteudo"></div>
-  </div>
+    <div class="modal" onclick="event.stopPropagation()"><div id="modalConteudo"></div></div>
 </div>
 
 <script>
-let credito = "";
-let entrada = "";
-let minParcelas = 2;
-let maxParcelas = 150;
-let alvo = "";
-let buffer = "";
+    // MASCARA DE TELEFONE
+    document.getElementById('zapNumero').addEventListener('input', function (e) {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+        e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+    });
 
-const parcelasFixas = [2,4,6,12,24,36,48,60,72,84,96,120,132,144,150];
-
-function formatar(v){
-  return Number(v || 0).toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
-
-function abrirModal(tipo){
-  alvo = tipo;
-  modalConteudo.innerHTML = "";
-
-  if(tipo === "credito" || tipo === "entrada"){
-    buffer = tipo === "credito" ? credito : entrada;
-    modalConteudo.innerHTML = `
-      <div class="display">${formatar(buffer)}</div>
-      <div class="calc">
-        ${[1,2,3,4,5,6,7,8,9,0,"000"].map(n =>
-          `<button onclick="digitar('${n}')">${n}</button>`
-        ).join("")}
-        <button onclick="limpar()">C</button>
-      </div>
-      <button class="confirm" onclick="confirmar()">Confirmar</button>
-    `;
-  } else {
-    modalConteudo.innerHTML = `
-      <div class="options">
-        ${parcelasFixas.map(p =>
-          `<button onclick="setParcela(${p})">${p}x</button>`
-        ).join("")}
-      </div>
-    `;
-  }
-
-  modalBg.style.display = "flex";
-}
-
-function fecharModal(){
-  modalBg.style.display = "none";
-}
-
-function digitar(v){
-  buffer += v;
-  modalConteudo.querySelector(".display").innerText = formatar(buffer);
-}
-
-function limpar(){
-  buffer = "";
-  modalConteudo.querySelector(".display").innerText = "0,00";
-}
-
-function confirmar(){
-  if(alvo === "credito"){
-    credito = buffer;
-    creditoView.innerText = formatar(credito);
-  }
-  if(alvo === "entrada"){
-    entrada = buffer;
-    entradaView.innerText = formatar(entrada);
-  }
-  fecharModal();
-  atualizar();
-}
-
-function setParcela(p){
-  if(alvo === "min"){
-    minParcelas = p;
-    minView.innerText = p + "x";
-  }
-  if(alvo === "max"){
-    maxParcelas = p;
-    maxView.innerText = p + "x";
-  }
-  fecharModal();
-  atualizar();
-}
-
-function atualizar(){
-  const c = Number(credito || 0);
-  const e = Number(entrada || 0);
-  if(c <= 0){
-    resultado.innerText = "";
-    return;
-  }
-
-  const base = (c * 1.19) - e;
-
-  let texto = `SIMULAÇÃO ✅\n\nCrédito: ${formatar(c)}\nEntrada: ${formatar(e)}\n\n`;
-  let valido = false;
-
-  parcelasFixas.forEach(p => {
-    if(p < minParcelas || p > maxParcelas) return;
-    const valor = Math.round((base / p) * 100) / 100;
-    if(valor >= 280){
-      texto += `${p}x de ${formatar(valor)}\n`;
-      valido = true;
+    function trocarTab(aba) {
+        const sSim = document.getElementById('secaoSimulacao');
+        const sZap = document.getElementById('secaoZap');
+        const btnSim = document.getElementById('tabSimulacao');
+        const btnZap = document.getElementById('tabZap');
+        if (aba === 'simulacao') {
+            sSim.style.display = 'block'; sZap.style.display = 'none';
+            btnSim.classList.add('active'); btnZap.classList.remove('active');
+        } else {
+            sSim.style.display = 'none'; sZap.style.display = 'block';
+            btnZap.classList.add('active'); btnSim.classList.remove('active');
+        }
     }
-  });
 
-  if(!valido){
-    texto += "Nenhuma parcela acima de 300,00.\n";
-  }
+    // LÓGICA SIMULAÇÃO
+    let credito = ""; let entrada = ""; let minParcelas = 2; let maxParcelas = 150; let alvo = ""; let buffer = "";
+    const parcelasFixas = [2,4,6,12,24,36,48,60,72,84,96,120,132,144,150];
+    function formatar(v){ return Number(v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    
+    function abrirModal(tipo){
+        alvo = tipo; modalConteudo.innerHTML = "";
+        if(tipo === "credito" || tipo === "entrada"){
+            buffer = tipo === "credito" ? credito : entrada;
+            modalConteudo.innerHTML = `<div class="display">${formatar(buffer)}</div><div class="calc">${[1,2,3,4,5,6,7,8,9,0,"000"].map(n => `<button onclick="digitar('${n}')">${n}</button>`).join("")}<button onclick="limpar()">C</button></div><button class="confirm" onclick="confirmar()">Confirmar</button>`;
+        } else {
+            modalConteudo.innerHTML = `<div class="options">${parcelasFixas.map(p => `<button onclick="setParcela(${p})">${p}x</button>`).join("")}</div>`;
+        }
+        modalBg.style.display = "flex";
+    }
 
-  texto += "\nValores após a liberação";
-  resultado.innerText = texto;
-}
+    function fecharModal(){ modalBg.style.display = "none"; }
+    function digitar(v){ buffer += v; modalConteudo.querySelector(".display").innerText = formatar(buffer); }
+    function limpar(){ buffer = ""; modalConteudo.querySelector(".display").innerText = "0,00"; }
+    
+    function confirmar(){ 
+        if(alvo === "credito"){ credito = buffer; creditoView.innerText = formatar(credito); }
+        if(alvo === "entrada"){ entrada = buffer; entradaView.innerText = formatar(entrada); }
+        fecharModal(); atualizar(); 
+    }
 
-function copiar(){
-  if(!resultado.innerText) return;
+    function setParcela(p){ 
+        if(alvo === "min"){ minParcelas = p; minView.innerText = p + "x"; }
+        if(alvo === "max"){ maxParcelas = p; maxView.innerText = p + "x"; }
+        fecharModal(); atualizar(); 
+    }
 
-  const t = document.createElement("textarea");
-  t.value = resultado.innerText;
-  t.style.position = "fixed";
-  t.style.opacity = "0";
-  document.body.appendChild(t);
-  t.focus();
-  t.select();
-  document.execCommand("copy");
-  document.body.removeChild(t);
+    function atualizar(){
+        const c = Number(credito || 0); const e = Number(entrada || 0);
+        if(c <= 0){ resultado.innerText = ""; return; }
+        const base = (c * 1.19) - e;
+        let texto = `SIMULAÇÃO ✅\n\nCrédito: ${formatar(c)}\nEntrada: ${formatar(e)}\n\n`;
+        let valido = false;
+        parcelasFixas.forEach(p => {
+            if(p < minParcelas || p > maxParcelas) return;
+            const valor = Math.round((base / p) * 100) / 100;
+            if(valor >= 280){ texto += `${p}x de ${formatar(valor)}\n`; valido = true; }
+        });
+        if(!valido) texto += "Nenhuma parcela acima de 280,00.\n";
+        texto += "\nValores após a liberação";
+        resultado.innerText = texto;
+    }
 
-  msg.innerText = "Simulação copiada ✅";
-}
+    function copiar(){
+        const texto = document.getElementById('resultado').innerText;
+        if(!texto) return;
+        const areaTexto = document.createElement("textarea");
+        areaTexto.value = texto;
+        document.body.appendChild(areaTexto);
+        areaTexto.select();
+        document.execCommand('copy');
+        document.body.removeChild(areaTexto);
+        const msg = document.getElementById('msgSimulacao');
+        msg.innerText = "Simulação copiada ✅";
+        setTimeout(() => msg.innerText = "", 2000);
+    }
+
+    // LÓGICA WHATSAPP SIMPLIFICADA
+    document.addEventListener('DOMContentLoaded', renderizarHistorico);
+
+    function enviarZap() {
+        const numInput = document.getElementById('zapNumero');
+        const numFormatado = numInput.value;
+        const numLimpo = numInput.value.replace(/\D/g, '');
+
+        if (numLimpo.length < 10) { alert("Informe o número corretamente."); return; }
+        
+        const agora = new Date();
+        const horario = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
+        let saudacao = (agora.getHours() >= 5 && agora.getHours() < 12) ? "Bom dia!" : (agora.getHours() >= 12 && agora.getHours() < 18) ? "Boa tarde!" : "Boa noite!";
+
+        const hist = JSON.parse(localStorage.getItem('meraki_logs') || '[]');
+        hist.unshift({ horario, num: numFormatado, msg: saudacao });
+        localStorage.setItem('meraki_logs', JSON.stringify(hist.slice(0, 3)));
+        renderizarHistorico();
+
+        window.location.href = `https://api.whatsapp.com/send?phone=55${numLimpo}&text=${encodeURIComponent(saudacao)}`;
+        numInput.value = "";
+    }
+
+    function renderizarHistorico() {
+        const lista = document.getElementById('zapHistorico');
+        const dados = JSON.parse(localStorage.getItem('meraki_logs') || '[]');
+        lista.innerHTML = dados.map(item => `
+            <div class="log-item">
+                <div style="display:flex;justify-content:space-between;color:#facc15;font-weight:bold;margin-bottom:4px;">
+                    <span>Chamada realizada</span>
+                    <span style="color:#4ade80;font-size:10px;">${item.horario}</span>
+                </div>
+                <div style="color:#e5e7eb; font-size:11px; margin-bottom:2px;"><b>Tel:</b> ${item.num}</div>
+                <div style="color:#94a3b8; font-size:11px; font-style: italic;">Enviado: "${item.msg}"</div>
+            </div>
+        `).join('');
+    }
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
